@@ -356,6 +356,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 4
+  maxSpeed: 2
+  steerStrength: 2
+  wanderStrength: 2
 --- !u!95 &487509099
 Animator:
   serializedVersion: 3

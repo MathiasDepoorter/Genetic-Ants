@@ -9,53 +9,74 @@ public class Ants : MonoBehaviour
 
     bool proxiFood = false;
 
+    public float maxSpeed = 2;
+    public float steerStrength = 2;
+    public float wanderStrength = 0.0001f;
+
+    Vector2 position;
+    Vector2 velocity;
+    Vector2 desiredDirection;
+
     // Start is called before the first frame update
     void Start()
     {
-        int angle = Random.Range(0, 360);
-        transform.Rotate(Vector3.forward * angle);
+        //int angle = Random.Range(0, 360);
+        //transform.Rotate(Vector3.forward * angle);
     }
 
     // Update is called once per frame
     void Update()
     {
-        GameObject ojectFood;
+        desiredDirection = (desiredDirection + Random.insideUnitCircle * wanderStrength).normalized;
 
-        ojectFood = searchFood();
-        if (proxiFood == true)
-        {
-            transform.position = Vector3.MoveTowards(transform.position, ojectFood.transform.position, Time.deltaTime * speed);
-        }
-        else
-        {
-            transform.Translate(Vector2.up * speed * Time.deltaTime);
-        }
+        Vector2 desiredVelocity = desiredDirection * maxSpeed;
+        Vector2 desiredSteeringForce = (desiredVelocity - velocity) * steerStrength;
+        Vector2 acceleration = Vector2.ClampMagnitude(desiredSteeringForce, steerStrength) / 1;
+
+        velocity = Vector2.ClampMagnitude(velocity + acceleration * Time.deltaTime, maxSpeed);
+        position += velocity * Time.deltaTime;
+
+        float angle = Mathf.Atan2(velocity.y, velocity.x) * Mathf.Rad2Deg;
+        transform.SetPositionAndRotation(position, Quaternion.Euler(0, 0, angle - 90));
+        
+
+        //GameObject ojectFood;
+
+        //ojectFood = SearchFood();
+        //if (proxiFood == true)
+        //{
+        //    transform.position = Vector3.MoveTowards(transform.position, ojectFood.transform.position, Time.deltaTime * speed);
+        //}
+        //else
+        //{
+        //    transform.Translate(Vector2.up * speed * Time.deltaTime);
+        //}
     }
 
     //Change Angle in collision and when Ants is stuck
-    void OnCollisionStay2D(Collision2D collision)
-    {
-        switch (collision.gameObject.tag)
-        {
-            //Contact with food
-            case "Food":
-                collision.gameObject.GetComponent<Food>().quantity--;
-                Debug.Log(collision.gameObject.GetComponent<Food>().quantity);
-                if (collision.gameObject.GetComponent<Food>().quantity <= 0)
-                {
-                    Destroy(collision.gameObject);
-                    proxiFood = false;
-                    transform.Translate(Vector2.up * speed * Time.deltaTime);
-                }
-                break;
-            default:
-                transform.Rotate(Vector3.forward * Random.Range(60, 170));
-                break;
-        }
-    }
+    //void OnCollisionStay2D(Collision2D collision)
+    //{
+    //    switch (collision.gameObject.tag)
+    //    {
+    //        //Contact with food
+    //        case "Food":
+    //            collision.gameObject.GetComponent<Food>().quantity--;
+    //            Debug.Log(collision.gameObject.GetComponent<Food>().quantity);
+    //            if (collision.gameObject.GetComponent<Food>().quantity <= 0)
+    //            {
+    //                Destroy(collision.gameObject);
+    //                proxiFood = false;
+    //                transform.Translate(Vector2.up * speed * Time.deltaTime);
+    //            }
+    //            break;
+    //        default:
+    //            transform.Rotate(Vector3.forward * Random.Range(60, 170));
+    //            break;
+    //    }
+    //}
 
     //search food in radius of 1
-    GameObject searchFood()
+    GameObject SearchFood()
     {
         GameObject gameObject = null;
         GameObject[] foods = GameObject.FindGameObjectsWithTag("Food");
