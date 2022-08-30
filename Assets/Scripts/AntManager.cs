@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class AntManager : MonoBehaviour
 {
@@ -36,7 +37,10 @@ public class AntManager : MonoBehaviour
     int obstacleRingCount = 50;
     [Range(0f, 1f)]
     float obstaclesPerRing = 0.0001f;
-    float obstacleRadius = 3;
+    float obstacleRadius = 3F;
+    bool isGenerated = false;
+    public Button playBtn;
+    public Button pauseBtn;
 
     Texture2D pheromoneTexture;
     Material myPheromoneMaterial;
@@ -55,6 +59,9 @@ public class AntManager : MonoBehaviour
 
     Vector2 resourcePosition;
     Vector2 colonyPosition;
+
+    Vector2 resourcePosition2;
+    Matrix4x4 resourceMatrix2;
 
     const int instancesPerBatch = 1023;
 
@@ -197,6 +204,7 @@ public class AntManager : MonoBehaviour
     void GenerateObstacles()
     {
         List<Obstacle> output = new List<Obstacle>();
+
         for (int i = 1; i <= obstacleRingCount; i++)
         {
             float ringRadius = (i / (obstacleRingCount + 1f)) * (mapSize * .5f);
@@ -299,7 +307,19 @@ public class AntManager : MonoBehaviour
 
     void Start()
     {
-        //antCount = GameManager.instance.getNbAnts();
+        //récupère les paramètres
+        antCount = GameManager.instance.getNbAnts();
+        isGenerated = GameManager.instance.getIsGenerated();
+        trailDecay = GameManager.instance.getTrailDecay();
+        trailAddSpeed = GameManager.instance.getTrailAddSpeed();
+        Debug.Log(isGenerated);
+
+        if (!isGenerated)
+        {
+            this.obstacleRingCount = 0;
+        }
+
+        //génère les obstacles
         GenerateObstacles();
 
         colonyPosition = Vector2.one * mapSize * .5f;
@@ -307,6 +327,11 @@ public class AntManager : MonoBehaviour
         float resourceAngle = Random.value * 2f * Mathf.PI;
         resourcePosition = Vector2.one * mapSize * .5f + new Vector2(Mathf.Cos(resourceAngle) * mapSize * .475f, Mathf.Sin(resourceAngle) * mapSize * .475f);
         resourceMatrix = Matrix4x4.TRS(resourcePosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
+
+
+        float resourceAngle2 = Random.value * 2f * Mathf.PI;
+        resourcePosition2 = Vector2.one * mapSize * .45f + new Vector2(Mathf.Cos(resourceAngle2) * mapSize * .475f, Mathf.Sin(resourceAngle2) * mapSize * .475f);
+        resourceMatrix2 = Matrix4x4.TRS(resourcePosition2 / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
 
         pheromoneTexture = new Texture2D(mapSize, mapSize);
         pheromoneTexture.wrapMode = TextureWrapMode.Mirror;
@@ -506,6 +531,36 @@ public class AntManager : MonoBehaviour
             matProps[i].SetVectorArray("_Color", antColors[i]);
         }
     }
+
+    public void UpSpeed(){
+        if (Time.timeScale < 9 && Time.timeScale != 0)
+        {
+            Time.timeScale = Time.timeScale + 1f;
+        }
+    }
+
+    public void DownSpeed()
+    {
+        if (Time.timeScale > 1 && Time.timeScale != 0)
+        {
+            Time.timeScale = Time.timeScale - 1f;
+        }
+    }
+
+    public void Pause()
+    {
+        Time.timeScale = 0f;
+        playBtn.gameObject.SetActive(true);
+        pauseBtn.gameObject.SetActive(false);
+    }
+
+    public void Play()
+    {
+        Time.timeScale = 1f;
+        playBtn.gameObject.SetActive(false);
+        pauseBtn.gameObject.SetActive(true);
+    }
+
     private void Update()
     {
 
@@ -557,5 +612,7 @@ public class AntManager : MonoBehaviour
 
         Graphics.DrawMesh(colonyMesh, colonyMatrix, colonyMaterial, 0);
         Graphics.DrawMesh(resourceMesh, resourceMatrix, resourceMaterial, 0);
+        Graphics.DrawMesh(resourceMesh, resourceMatrix2, resourceMaterial, 0);
     }
+
 }

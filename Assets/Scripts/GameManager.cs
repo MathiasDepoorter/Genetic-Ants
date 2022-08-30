@@ -23,6 +23,11 @@ public class GameManager : MonoBehaviour
     #endregion
     public int nbAnts = 1000;
     public bool isGenerated = false;
+    public float trailDecay = 0.9985f;
+    public float trailAddSpeed = 0.3f;
+    public bool createFood = true;
+    public bool createNid = true;
+
 
     // Start is called before the first frame update
     void Start()
@@ -44,5 +49,23 @@ public class GameManager : MonoBehaviour
     public bool getIsGenerated()
     {
         return this.isGenerated;
+    }
+
+    public float getTrailDecay()
+    {
+        return this.trailDecay;
+    }
+    public float getTrailAddSpeed()
+    {
+        return this.trailAddSpeed;
+    }
+
+    public bool getCreateFood()
+    {
+        return this.createFood;
+    }
+    public bool getCreateNid()
+    {
+        return this.createNid;
     }
 }
