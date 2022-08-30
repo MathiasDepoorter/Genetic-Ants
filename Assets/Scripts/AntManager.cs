@@ -67,6 +67,9 @@ public class AntManager : MonoBehaviour
 
     Matrix4x4[] rotationMatrixLookup;
 
+    /*
+     * 
+     */
     Matrix4x4 GetRotationMatrix(float angle)
     {
         angle /= Mathf.PI * 2f;
@@ -75,6 +78,9 @@ public class AntManager : MonoBehaviour
         return rotationMatrixLookup[((int)angle) % rotationResolution];
     }
 
+    /**
+     * Return the quantity of pheromone at coordinate
+     */
     int PheromoneIndex(int x, int y)
     {
         return x + y * mapSize;
@@ -166,41 +172,6 @@ public class AntManager : MonoBehaviour
         return false;
     }
 
-    //void GenerateObstacles()
-    //{
-    //    List<Obstacle> output = new List<Obstacle>();
-
-    //    obstacleMatrices = new Matrix4x4[Mathf.CeilToInt((float)output.Count / instancesPerBatch)][];
-    //    for (int i = 0; i < obstacleMatrices.Length; i++)
-    //    {
-    //        obstacleMatrices[i] = new Matrix4x4[Mathf.Min(instancesPerBatch, output.Count - i * instancesPerBatch)];
-    //        for (int j = 0; j < obstacleMatrices[i].Length; j++)
-    //        {
-    //            obstacleMatrices[i][j] = Matrix4x4.TRS(output[i * instancesPerBatch + j].position / mapSize, Quaternion.identity, new Vector3(obstacleRadius * 2f, obstacleRadius * 2f, 1f) / mapSize);
-    //        }
-    //    }
-
-    //    obstacles = output.ToArray();
-
-    //    List<Obstacle>[,] tempObstacleBuckets = new List<Obstacle>[bucketResolution, bucketResolution];
-
-    //    for (int x = 0; x < bucketResolution; x++)
-    //    {
-    //        for (int y = 0; y < bucketResolution; y++)
-    //        {
-    //            tempObstacleBuckets[x, y] = new List<Obstacle>();
-    //        }
-    //    }
-
-    //    obstacleBuckets = new Obstacle[bucketResolution, bucketResolution][];
-    //    for (int x = 0; x < bucketResolution; x++)
-    //    {
-    //        for (int y = 0; y < bucketResolution; y++)
-    //        {
-    //            obstacleBuckets[x, y] = tempObstacleBuckets[x, y].ToArray();
-    //        }
-    //    }
-    //}
     void GenerateObstacles()
     {
         List<Obstacle> output = new List<Obstacle>();
@@ -397,7 +368,13 @@ public class AntManager : MonoBehaviour
             int index2 = i % instancesPerBatch;
             if (ant.holdingResource == false)
             {
-                targetPos = resourcePosition;
+                // Determine which resource is the closest
+                if (Vector2.Distance(ant.position, resourcePosition) < Vector2.Distance(ant.position, resourcePosition2))
+                {
+                    targetPos = resourcePosition;
+                } else {
+                    targetPos = resourcePosition2;
+                }
 
                 antColors[index1][index2] += ((Vector4)searchColor * ant.brightness - antColors[index1][index2]) * .05f;
             }
