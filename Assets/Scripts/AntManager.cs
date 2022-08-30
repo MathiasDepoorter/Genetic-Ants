@@ -59,16 +59,18 @@ public class AntManager : MonoBehaviour
 
     Vector2 resourcePosition;
     Vector2 colonyPosition;
+    int resourceCounter;
 
     Vector2 resourcePosition2;
     Matrix4x4 resourceMatrix2;
+    int resourceCounter2;
 
     const int instancesPerBatch = 1023;
 
     Matrix4x4[] rotationMatrixLookup;
 
-    /*
-     * 
+    /**
+     * Get the rotation of the matrix for the random generation of obstacle
      */
     Matrix4x4 GetRotationMatrix(float angle)
     {
@@ -103,6 +105,10 @@ public class AntManager : MonoBehaviour
         }
     }
 
+    /**
+     * Make ants follow pheromon
+     * return the direction
+     */
     float PheromoneSteering(Ant ant, float distance)
     {
         float output = 0;
@@ -127,6 +133,10 @@ public class AntManager : MonoBehaviour
         return Mathf.Sign(output);
     }
 
+    /**
+     * Make ants follow walls
+     * return the direction
+     */
     int WallSteering(Ant ant, float distance)
     {
         int output = 0;
@@ -351,6 +361,7 @@ public class AntManager : MonoBehaviour
         {
             Ant ant = ants[i];
             float targetSpeed = antSpeed;
+            int resourceId = 0;
 
             ant.facingAngle += Random.Range(-randomSteering, randomSteering);
 
@@ -372,8 +383,10 @@ public class AntManager : MonoBehaviour
                 if (Vector2.Distance(ant.position, resourcePosition) < Vector2.Distance(ant.position, resourcePosition2))
                 {
                     targetPos = resourcePosition;
+                    resourceId = 1;
                 } else {
                     targetPos = resourcePosition2;
+                    resourceId = 2;
                 }
 
                 antColors[index1][index2] += ((Vector4)searchColor * ant.brightness - antColors[index1][index2]) * .05f;
@@ -403,13 +416,36 @@ public class AntManager : MonoBehaviour
                         ant.facingAngle += (targetAngle - ant.facingAngle) * goalSteerStrength;
                 }
 
-                //Debug.DrawLine(ant.position/mapSize,targetPos/mapSize,color);
             }
             if ((ant.position - targetPos).sqrMagnitude < 4f * 4f)
             {
+                if (!ant.holdingResource)
+                {
+                    if (resourceId == 1)
+                    {
+                        resourceCounter++;
+                    } else {
+                        resourceCounter2++;
+                    }
+                }
                 ant.holdingResource = !ant.holdingResource;
                 ant.facingAngle += Mathf.PI;
             }
+
+            if (resourceCounter >= antCount)
+            {
+                float resourceAngle = Random.value * 2f * Mathf.PI;
+                resourcePosition = Vector2.one * mapSize * .5f + new Vector2(Mathf.Cos(resourceAngle) * mapSize * .475f, Mathf.Sin(resourceAngle) * mapSize * .475f);
+                resourceMatrix = Matrix4x4.TRS(resourcePosition / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
+                resourceCounter = 0;
+            } else if (resourceCounter2 >= antCount)
+            {
+                float resourceAngle = Random.value * 2f * Mathf.PI;
+                resourcePosition2 = Vector2.one * mapSize * .5f + new Vector2(Mathf.Cos(resourceAngle) * mapSize * .475f, Mathf.Sin(resourceAngle) * mapSize * .475f);
+                resourceMatrix2 = Matrix4x4.TRS(resourcePosition2 / mapSize, Quaternion.identity, new Vector3(4f, 4f, .1f) / mapSize);
+                resourceCounter2 = 0;
+            }
+
 
             float vx = Mathf.Cos(ant.facingAngle) * ant.speed;
             float vy = Mathf.Sin(ant.facingAngle) * ant.speed;
