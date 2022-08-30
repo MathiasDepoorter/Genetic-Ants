@@ -33,10 +33,10 @@ public class AntManager : MonoBehaviour
     public float outwardStrength;
     public float inwardStrength;
     public int rotationResolution = 360;
-    public int obstacleRingCount;
+    int obstacleRingCount = 50;
     [Range(0f, 1f)]
-    public float obstaclesPerRing;
-    public float obstacleRadius;
+    float obstaclesPerRing = 0.0001f;
+    float obstacleRadius = 3;
 
     Texture2D pheromoneTexture;
     Material myPheromoneMaterial;
@@ -212,6 +212,11 @@ public class AntManager : MonoBehaviour
                     float angle = (j + offset) / (float)maxCount * (2f * Mathf.PI);
                     Obstacle obstacle = new Obstacle();
                     obstacle.position = new Vector2(mapSize * .5f + Mathf.Cos(angle) * ringRadius, mapSize * .5f + Mathf.Sin(angle) * ringRadius);
+                    if (Vector2.Distance(obstacle.position, new Vector2((mapSize * .5f), mapSize * .5f)) < 10)
+                    {
+                        obstacle.position.x *= Random.Range(0.5f, 1.5f);
+                        obstacle.position.y *= Random.Range(0.5f, 1.5f);
+                    }
                     obstacle.radius = obstacleRadius;
                     output.Add(obstacle);
                     //Debug.DrawRay(obstacle.position / mapSize,-Vector3.forward * .05f,Color.green,10000f);
