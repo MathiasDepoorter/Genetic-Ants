@@ -25,8 +25,6 @@ public class GameManager : MonoBehaviour
     public bool isGenerated = false;
     public float trailDecay = 0.9985f;
     public float trailAddSpeed = 0.3f;
-    public bool createFood = true;
-    public bool createNid = true;
 
 
     // Start is called before the first frame update
@@ -60,12 +58,9 @@ public class GameManager : MonoBehaviour
         return this.trailAddSpeed;
     }
 
-    public bool getCreateFood()
+    public void DestroyThyself()
     {
-        return this.createFood;
-    }
-    public bool getCreateNid()
-    {
-        return this.createNid;
+        Destroy(gameObject);
+        instance = null;    // because destroy doesn't happen until end of frame
     }
 }

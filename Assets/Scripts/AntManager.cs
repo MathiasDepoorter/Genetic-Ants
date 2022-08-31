@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class AntManager : MonoBehaviour
@@ -572,6 +573,13 @@ public class AntManager : MonoBehaviour
         Time.timeScale = 1f;
         playBtn.gameObject.SetActive(false);
         pauseBtn.gameObject.SetActive(true);
+    }
+
+    public void GoMainMenu()
+    {
+        Debug.Log("Retour menu principal");
+        GameManager.instance.DestroyThyself();
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
     }
 
     private void Update()
